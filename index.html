@@ -1,0 +1,999 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopNest</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6fb;
+    color: #222;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
+    background: #1f2a44;
+    color: #fff;
+}
+
+.logo {
+    font-size: 1.5rem;
+}
+
+.logo span {
+    color: #ffb703;
+}
+
+#searchInput {
+    flex: 1;
+    max-width: 480px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.cart-badge {
+    margin-left: auto;
+    background: #ffb703;
+    color: #1f2a44;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    padding: 24px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    padding: 8px 18px;
+    border: 1px solid #1f2a44;
+    background: #fff;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.filter-btn:hover {
+    background: #e8ecf7;
+}
+
+.filter-btn.active {
+    background: #1f2a44;
+    color: #fff;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: #ddd;
+}
+
+.card-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.card-category {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #777;
+    letter-spacing: 0.5px;
+}
+
+.card-name {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.rating {
+    color: #e69500;
+    font-size: 0.9rem;
+}
+
+.price {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.original {
+    text-decoration: line-through;
+    color: #999;
+    font-weight: 400;
+    font-size: 0.9rem;
+    margin-left: 6px;
+}
+
+.discount {
+    color: #1b9a4b;
+    font-size: 0.8rem;
+    margin-left: 6px;
+}
+
+.btn-add {
+    margin-top: auto;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #ffb703;
+    color: #1f2a44;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-add:hover {
+    background: #f5a700;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #777;
+}
+
+.no-results[hidden] {
+    display: none;
+}
+
+.cart {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    height: fit-content;
+    position: sticky;
+    top: 80px;
+}
+
+.cart h2 {
+    margin-bottom: 12px;
+}
+
+.cart-list {
+    list-style: none;
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.cart-info {
+    flex: 1;
+    font-size: 0.9rem;
+}
+
+.cart-info .name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.qty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.qty button {
+    width: 26px;
+    height: 26px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.qty button:hover {
+    background: #eee;
+}
+
+.btn-remove {
+    background: none;
+    border: none;
+    color: #d62828;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.cart-empty {
+    color: #888;
+    padding: 12px 0;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 2px solid #1f2a44;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .cart {
+        position: static;
+    }
+}
+
+@media (max-width: 500px) {
+    .header {
+        flex-wrap: wrap;
+        padding: 12px;
+    }
+
+    #searchInput {
+        order: 3;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .layout {
+        padding: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <h1 class="logo">Shop<span>Nest</span></h1>
+
+    <input type="search" id="searchInput"
+    placeholder="Search products..." autocomplete="off">
+
+    <div class="cart-badge" title="Cart items">
+        🛒 <span id="cartCount">0</span>
+    </div>
+</header>
+
+<main class="layout">
+
+    <section class="shop">
+        <div id="filters" class="filters"></div>
+
+        <div id="productGrid" class="grid"></div>
+
+        <p id="noResults" class="no-results" hidden>
+            No products found
+        </p>
+    </section>
+
+    <aside class="cart">
+        <h2>Your Cart</h2>
+
+        <ul id="cartList" class="cart-list"></ul>
+
+        <p id="cartEmpty" class="cart-empty">
+            Your cart is empty.
+        </p>
+
+        <div class="cart-total">
+            <span>Total</span>
+            <strong id="cartTotal">₹0.00</strong>
+        </div>
+    </aside>
+
+</main>
+
+<script>
+
+const CART_KEY = "shopnest_cart";
+
+const CATEGORIES = [
+    "All",
+    "Electronics",
+    "Clothing",
+    "Footwear",
+    "Books"
+];
+
+let products = [];
+let cart = [];
+let searchTerm = "";
+let activeCategory = "All";
+
+const searchInput = document.getElementById("searchInput");
+const filtersEl = document.getElementById("filters");
+const gridEl = document.getElementById("productGrid");
+const noResultsEl = document.getElementById("noResults");
+const cartListEl = document.getElementById("cartList");
+const cartEmptyEl = document.getElementById("cartEmpty");
+const cartTotalEl = document.getElementById("cartTotal");
+const cartCountEl = document.getElementById("cartCount");
+
+// Format product price
+const formatPrice = (n) =>
+    "₹" + n.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+// Create HTML element
+function createEl(tag, className, text) {
+    const el = document.createElement(tag);
+
+    if (className) {
+        el.className = className;
+    }
+
+    if (text !== undefined) {
+        el.textContent = text;
+    }
+
+    return el;
+}
+
+// Create product image
+function createImage(src, alt) {
+    const img = document.createElement("img");
+
+    img.src = src;
+    img.alt = alt;
+    img.loading = "lazy";
+
+    img.onerror = () => {
+        img.onerror = null;
+        img.src = "data:image/svg+xml;utf8," +
+            encodeURIComponent(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><rect width="100%" height="100%" fill="#ddd"/><text x="50%" y="50%" fill="#888" font-size="18" text-anchor="middle" dy=".3em">No image</text></svg>'
+            );
+    };
+
+    return img;
+}
+
+// Fetch products using async and await
+async function fetchProducts() {
+    let jsonUrl;
+
+    try {
+        const raw = document.getElementById("productData").textContent;
+
+        const blob = new Blob([raw], {
+            type: "application/json"
+        });
+
+        jsonUrl = URL.createObjectURL(blob);
+
+        const response = await fetch(jsonUrl);
+
+        if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
+        }
+
+        products = await response.json();
+
+    } catch (error) {
+        console.error("Failed to load products:", error);
+
+        products = [];
+
+        noResultsEl.textContent = "Could not load products.";
+        noResultsEl.hidden = false;
+
+    } finally {
+        if (jsonUrl) {
+            URL.revokeObjectURL(jsonUrl);
+        }
+    }
+}
+
+// Save cart in local storage
+function saveCart() {
+    try {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    } catch (e) {
+        console.error("Could not save cart:", e);
+    }
+}
+
+// Load cart from local storage
+function loadCart() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(CART_KEY));
+
+        cart = Array.isArray(saved) ? saved : [];
+
+    } catch (e) {
+        cart = [];
+    }
+
+    cart = cart.filter((item) =>
+        products.some((p) => p.id === item.id) &&
+        Number.isInteger(item.qty) &&
+        item.qty > 0
+    );
+}
+
+// Search and category filter
+function getFilteredProducts() {
+    const term = searchTerm.trim().toLowerCase();
+
+    return products.filter((p) => {
+
+        const matchesSearch =
+            p.name.toLowerCase().includes(term);
+
+        const matchesCategory =
+            activeCategory === "All" ||
+            p.category === activeCategory;
+
+        return matchesSearch && matchesCategory;
+    });
+}
+
+// Display category buttons
+function renderFilters() {
+    filtersEl.replaceChildren();
+
+    CATEGORIES.forEach((cat) => {
+
+        const btn = createEl(
+            "button",
+            "filter-btn" +
+            (cat === activeCategory ? " active" : ""),
+            cat
+        );
+
+        btn.dataset.category = cat;
+
+        filtersEl.appendChild(btn);
+    });
+}
+
+// Create product card
+function createProductCard(p) {
+
+    const card = createEl("article", "card");
+
+    card.appendChild(createImage(p.imageUrl, p.name));
+
+    const body = createEl("div", "card-body");
+
+    body.appendChild(
+        createEl("span", "card-category", p.category)
+    );
+
+    body.appendChild(
+        createEl("h3", "card-name", p.name)
+    );
+
+    body.appendChild(
+        createEl("div", "rating", "★ " + p.rating.toFixed(1))
+    );
+
+    const priceRow = createEl(
+        "div",
+        "price",
+        formatPrice(p.price)
+    );
+
+    if (p.originalPrice > p.price) {
+
+        priceRow.appendChild(
+            createEl(
+                "span",
+                "original",
+                formatPrice(p.originalPrice)
+            )
+        );
+
+        const off = Math.round(
+            (1 - p.price / p.originalPrice) * 100
+        );
+
+        priceRow.appendChild(
+            createEl("span", "discount", off + "% off")
+        );
+    }
+
+    body.appendChild(priceRow);
+
+    const btn = createEl(
+        "button",
+        "btn-add",
+        "Add to Cart"
+    );
+
+    btn.dataset.id = p.id;
+
+    body.appendChild(btn);
+
+    card.appendChild(body);
+
+    return card;
+}
+
+// Display products
+function renderProducts() {
+
+    const list = getFilteredProducts();
+
+    gridEl.replaceChildren();
+
+    if (list.length === 0) {
+
+        noResultsEl.textContent = "No products found";
+        noResultsEl.hidden = false;
+
+        return;
+    }
+
+    noResultsEl.hidden = true;
+
+    const fragment = document.createDocumentFragment();
+
+    list.forEach((p) => {
+        fragment.appendChild(createProductCard(p));
+    });
+
+    gridEl.appendChild(fragment);
+}
+
+// Add product to cart
+function addToCart(id) {
+
+    const item = cart.find((i) => i.id === id);
+
+    if (item) {
+        item.qty += 1;
+    } else {
+        cart.push({
+            id: id,
+            qty: 1
+        });
+    }
+
+    updateCart();
+}
+
+// Increase or decrease quantity
+function changeQty(id, delta) {
+
+    const item = cart.find((i) => i.id === id);
+
+    if (!item) return;
+
+    item.qty += delta;
+
+    if (item.qty <= 0) {
+        cart = cart.filter((i) => i.id !== id);
+    }
+
+    updateCart();
+}
+
+// Remove product from cart
+function removeFromCart(id) {
+
+    cart = cart.filter((i) => i.id !== id);
+
+    updateCart();
+}
+
+// Calculate total price
+function getCartTotal() {
+
+    return cart.reduce((sum, item) => {
+
+        const p = products.find((x) => x.id === item.id);
+
+        return sum + (p ? p.price * item.qty : 0);
+
+    }, 0);
+}
+
+// Calculate total cart items
+function getCartCount() {
+
+    return cart.reduce((sum, item) => {
+        return sum + item.qty;
+    }, 0);
+}
+
+// Create cart item
+function createCartItem(item) {
+
+    const p = products.find((x) => x.id === item.id);
+
+    if (!p) return null;
+
+    const li = createEl("li", "cart-item");
+
+    li.appendChild(createImage(p.imageUrl, p.name));
+
+    const info = createEl("div", "cart-info");
+
+    info.appendChild(
+        createEl("div", "name", p.name)
+    );
+
+    info.appendChild(
+        createEl("div", "unit", formatPrice(p.price))
+    );
+
+    const qty = createEl("div", "qty");
+
+    const minus = createEl("button", "", "–");
+
+    minus.dataset.action = "dec";
+    minus.dataset.id = p.id;
+
+    minus.setAttribute("aria-label", "Decrease quantity");
+
+    const count = createEl(
+        "span",
+        "",
+        String(item.qty)
+    );
+
+    const plus = createEl("button", "", "+");
+
+    plus.dataset.action = "inc";
+    plus.dataset.id = p.id;
+
+    plus.setAttribute("aria-label", "Increase quantity");
+
+    qty.append(minus, count, plus);
+
+    info.appendChild(qty);
+
+    info.appendChild(
+        createEl(
+            "div",
+            "subtotal",
+            "Subtotal: " + formatPrice(p.price * item.qty)
+        )
+    );
+
+    const remove = createEl(
+        "button",
+        "btn-remove",
+        "Remove"
+    );
+
+    remove.dataset.action = "remove";
+    remove.dataset.id = p.id;
+
+    info.appendChild(remove);
+
+    li.appendChild(info);
+
+    return li;
+}
+
+// Display cart
+function renderCart() {
+
+    cartListEl.replaceChildren();
+
+    const fragment = document.createDocumentFragment();
+
+    cart.forEach((item) => {
+        const cartItem = createCartItem(item);
+
+        if (cartItem) {
+            fragment.appendChild(cartItem);
+        }
+    });
+
+    cartListEl.appendChild(fragment);
+
+    cartEmptyEl.hidden = cart.length > 0;
+
+    cartTotalEl.textContent = formatPrice(getCartTotal());
+
+    cartCountEl.textContent = getCartCount();
+}
+
+// Update cart and save
+function updateCart() {
+
+    saveCart();
+
+    renderCart();
+}
+
+// Setup all events
+function setupEvents() {
+
+    // Search products
+    searchInput.addEventListener("input", (e) => {
+
+        searchTerm = e.target.value;
+
+        renderProducts();
+    });
+
+    // Category filter
+    filtersEl.addEventListener("click", (e) => {
+
+        const btn = e.target.closest(".filter-btn");
+
+        if (!btn) return;
+
+        activeCategory = btn.dataset.category;
+
+        renderFilters();
+
+        renderProducts();
+    });
+
+    // Add to cart
+    gridEl.addEventListener("click", (e) => {
+
+        const btn = e.target.closest(".btn-add");
+
+        if (!btn) return;
+
+        addToCart(Number(btn.dataset.id));
+    });
+
+    // Cart buttons
+    cartListEl.addEventListener("click", (e) => {
+
+        const btn = e.target.closest("button[data-action]");
+
+        if (!btn) return;
+
+        const id = Number(btn.dataset.id);
+
+        switch (btn.dataset.action) {
+
+            case "inc":
+                changeQty(id, 1);
+                break;
+
+            case "dec":
+                changeQty(id, -1);
+                break;
+
+            case "remove":
+                removeFromCart(id);
+                break;
+        }
+    });
+}
+
+// Start the application
+async function init() {
+
+    setupEvents();
+
+    renderFilters();
+
+    await fetchProducts();
+
+    loadCart();
+
+    renderProducts();
+
+    renderCart();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+
+</script>
+
+<script type="application/json" id="productData">
+[
+    {
+        "id": 1,
+        "name": "Wireless Bluetooth Headphones",
+        "category": "Electronics",
+        "price": 1999,
+        "originalPrice": 3499,
+        "rating": 4.5,
+        "imageUrl": "https://picsum.photos/seed/headphones/400/300"
+    },
+    {
+        "id": 2,
+        "name": "Smart Fitness Watch",
+        "category": "Electronics",
+        "price": 2499,
+        "originalPrice": 4999,
+        "rating": 4.3,
+        "imageUrl": "https://picsum.photos/seed/watch/400/300"
+    },
+    {
+        "id": 3,
+        "name": "Portable Power Bank 20000mAh",
+        "category": "Electronics",
+        "price": 1299,
+        "originalPrice": 1999,
+        "rating": 4.4,
+        "imageUrl": "https://picsum.photos/seed/powerbank/400/300"
+    },
+    {
+        "id": 4,
+        "name": "Mini Bluetooth Speaker",
+        "category": "Electronics",
+        "price": 999,
+        "originalPrice": 1799,
+        "rating": 4.1,
+        "imageUrl": "https://picsum.photos/seed/speaker/400/300"
+    },
+    {
+        "id": 5,
+        "name": "Men's Cotton T-Shirt",
+        "category": "Clothing",
+        "price": 499,
+        "originalPrice": 899,
+        "rating": 4.2,
+        "imageUrl": "https://picsum.photos/seed/tshirt/400/300"
+    },
+    {
+        "id": 6,
+        "name": "Slim Fit Denim Jeans",
+        "category": "Clothing",
+        "price": 1299,
+        "originalPrice": 2199,
+        "rating": 4.0,
+        "imageUrl": "https://picsum.photos/seed/jeans/400/300"
+    },
+    {
+        "id": 7,
+        "name": "Women's Floral Kurti",
+        "category": "Clothing",
+        "price": 799,
+        "originalPrice": 1499,
+        "rating": 4.6,
+        "imageUrl": "https://picsum.photos/seed/kurti/400/300"
+    },
+    {
+        "id": 8,
+        "name": "Hooded Winter Jacket",
+        "category": "Clothing",
+        "price": 2199,
+        "originalPrice": 3999,
+        "rating": 4.4,
+        "imageUrl": "https://picsum.photos/seed/jacket/400/300"
+    },
+    {
+        "id": 9,
+        "name": "Running Sports Shoes",
+        "category": "Footwear",
+        "price": 1799,
+        "originalPrice": 2999,
+        "rating": 4.5,
+        "imageUrl": "https://picsum.photos/seed/runningshoes/400/300"
+    },
+    {
+        "id": 10,
+        "name": "Casual Canvas Sneakers",
+        "category": "Footwear",
+        "price": 1099,
+        "originalPrice": 1899,
+        "rating": 4.2,
+        "imageUrl": "https://picsum.photos/seed/sneakers/400/300"
+    },
+    {
+        "id": 11,
+        "name": "Leather Formal Shoes",
+        "category": "Footwear",
+        "price": 2299,
+        "originalPrice": 3799,
+        "rating": 4.3,
+        "imageUrl": "https://picsum.photos/seed/formalshoes/400/300"
+    },
+    {
+        "id": 12,
+        "name": "Comfort Slip-On Sandals",
+        "category": "Footwear",
+        "price": 599,
+        "originalPrice": 999,
+        "rating": 3.9,
+        "imageUrl": "https://picsum.photos/seed/sandals/400/300"
+    },
+    {
+        "id": 13,
+        "name": "The Alchemist (Paperback)",
+        "category": "Books",
+        "price": 299,
+        "originalPrice": 450,
+        "rating": 4.7,
+        "imageUrl": "https://picsum.photos/seed/alchemist/400/300"
+    },
+    {
+        "id": 14,
+        "name": "Atomic Habits",
+        "category": "Books",
+        "price": 499,
+        "originalPrice": 799,
+        "rating": 4.8,
+        "imageUrl": "https://picsum.photos/seed/atomichabits/400/300"
+    },
+    {
+        "id": 15,
+        "name": "JavaScript: The Good Parts",
+        "category": "Books",
+        "price": 650,
+        "originalPrice": 999,
+        "rating": 4.4,
+        "imageUrl": "https://picsum.photos/seed/jsbook/400/300"
+    },
+    {
+        "id": 16,
+        "name": "Rich Dad Poor Dad",
+        "category": "Books",
+        "price": 350,
+        "originalPrice": 550,
+        "rating": 4.6,
+        "imageUrl": "https://picsum.photos/seed/richdad/400/300"
+    }
+]
+</script>
+
+</body>
+</html>
